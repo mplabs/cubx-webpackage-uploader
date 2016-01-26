@@ -1,0 +1,9 @@
+{
+    "source": "test/testdata/packages/package1",
+    "target": {
+        "url": "http://boot2docker.me/base-api-upload-test",
+        "path": "_api/upload",
+        "proxy": "http:/proxy.de:80"
+    },
+    "debug": true
+}

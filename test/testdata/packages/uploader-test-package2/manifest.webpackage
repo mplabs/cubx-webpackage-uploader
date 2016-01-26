@@ -1,0 +1,17 @@
+{
+  "name": "uploader-test-package2",
+  "groupId": "",
+  "version": "1.0.0",
+  "modelVersion": "8.0.0",
+  "docType": "webpackage",
+  "author": {
+    "name": "Hd Böhlau",
+    "email": "hans-dieter.boehlau@incowia.com"
+  },
+  "license": "MIT",
+  "keywords": [],
+  "man": [],
+  "artifacts": {
+    "apps": []
+  }
+}

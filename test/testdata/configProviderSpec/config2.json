@@ -1,0 +1,9 @@
+{
+    "source": "test/testdata/packages/package1",
+    "target": {
+        "url": "http://localhost:5984/sandbox",
+        "path": "_api/upload",
+        "proxy": "http://proxy.de:80"
+    },
+    "debug": true
+}
