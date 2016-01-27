@@ -35,8 +35,7 @@ describe('uploader', function () {
     var testStartTime = new Date().getTime()
 
     function callback (err, success) {
-      console.log('success: ' + success)
-      console.log('error:', err)
+      console.log('success', success)
       assert(err === null, 'err = ' + err)
       done()
     }
@@ -54,8 +53,8 @@ describe('uploader', function () {
         assert(successObject.baseContext.uploadInfos.user !== undefined, 'Expected user to be defined.')
 
         var docTime = Date.parse(successObject.baseContext.uploadInfos.date)
-        // to avoid fails due to some small time divergences
-        testStartTime = testStartTime - 1000
+        // to avoid fails due to some small time divergences with the backend
+        testStartTime = testStartTime - 10000
         assert(docTime > testStartTime, 'Is Timestamp ok? ' + docTime + ' > ' + testStartTime)
 
         // upload it the second time, now we are sure the package already exists
@@ -112,7 +111,7 @@ describe('uploader', function () {
     var options = _.merge(defaults, localOptions)
 
     var callback = function (err, success) {
-      console.log(err.message)
+      // console.log(err.message)
       assert(err !== undefined)
       assert(err.message.indexOf('Validation failed.') > -1)
       done()

@@ -60,3 +60,6 @@ Config structure:
 ### Run (standalone)
 
     cubx-webpackage-uploader <config path e.g. ./folder/config.json>
+
+[npm-image]: https://img.shields.io/npm/v/cubx-webpackage-uploader.svg?style=flat
+[npm-url]: https://npmjs.org/package/cubx-webpackage-uploader
