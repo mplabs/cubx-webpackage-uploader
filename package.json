@@ -30,7 +30,7 @@
   "dependencies": {
     "chalk": "~1.1.0",
     "cubx-authentication-client": "^1.0.0",
-    "cubx-webpackage-document-api": "git+https://pmt.incowia.de/webble/r/client/utilities/cubx-webpackage-document-api.git#v2.4.1",
+    "cubx-webpackage-document-api": "^3.0.0",
     "fs": "^0.0.2",
     "lodash": "^3.10",
     "mime": "^1.2.11",

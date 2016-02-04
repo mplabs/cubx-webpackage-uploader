@@ -10,7 +10,7 @@ This lib is part of the Cubbles platform. Use this lib to upload webpackages fro
 $ npm install -g cubx-webpackage-uploader
 ```
 
-## Usage
+## API
 ```js
 var uploader = require('cubx-webpackage-uploader')();
 var uploaderConfig = {
