@@ -32,7 +32,6 @@ describe('uploader', function () {
   it('should upload \'uploader-test-package1@0.1.0-SNAPSHOT\'', function (done) {
     var options = _.merge(defaults, { 'debug': false })
     // console.log(JSON.stringify(options, null, '\t'));
-    var testStartTime = new Date().getTime()
 
     function callback (err, success) {
       console.log('success', success)
@@ -51,11 +50,7 @@ describe('uploader', function () {
         console.log('doc.baseContext: ', JSON.stringify(successObject.baseContext, null, '\t'))
         assert(successObject.baseContext.uploadInfos.client !== undefined, 'Is client defined?')
         assert(successObject.baseContext.uploadInfos.user !== undefined, 'Expected user to be defined.')
-
-        var docTime = Date.parse(successObject.baseContext.uploadInfos.date)
-        // to avoid fails due to some small time divergences with the backend
-        testStartTime = testStartTime - 10000
-        assert(docTime > testStartTime, 'Is Timestamp ok? ' + docTime + ' > ' + testStartTime)
+        assert(successObject.baseContext.uploadInfos.date !== undefined, 'Expected date to be defined.')
 
         // upload it the second time, now we are sure the package already exists
         uploader.uploadSingleWebpackage(options, callback)
