@@ -12,19 +12,13 @@ var opts = {
   couchUrl: 'http://admin:admin@boot2docker.me:5984',
   dbNamePrefix: 'webpackage-store',
   storeName: 'base-api-upload-test',
-  finallyRemoveTestData: true
+  finallyRemoveTestData: process.env.REMOVE_TESTDATA ? JSON.parse(process.env.REMOVE_TESTDATA) : true
 }
 var supercouch = require('supercouch')
 var request = require('superagent')
 var couch = supercouch(opts.couchUrl)
+var testdata = require('./testdata/userdata.js')
 var dbName = opts.dbNamePrefix + '-' + opts.storeName
-var userDoc = {
-  '_id': 'org.couchdb.user:base-api-test-user',
-  'name': 'base-api-test-user',
-  'roles': [],
-  'type': 'user',
-  'password': 'cubbles'
-}
 
 function removeDb (done, next) {
   couch
@@ -81,13 +75,13 @@ function replicateFromCore (done) {
         console.log('replication form core failed', err)
         return done(err)
       }
-      addStoreDocument(done)
+      addWebpackageDocument(done)
     })
 }
 
-function addStoreDocument (done) {
+function addWebpackageDocument (done) {
   var doc = { _id: 'pack@1.0.0', foo: 'bar' }
-  console.log('Creating document: %s\n', doc._id)
+  console.log('Creating Webpackage: %s\n', doc._id)
   couch
     .db(dbName)
     .insert(doc)
@@ -100,85 +94,55 @@ function addStoreDocument (done) {
     })
 }
 
+function addDocument (db, doc, next) {
+  doc.created = Date.now()
+  couch
+    .db(db)
+    .insert(doc)
+    .end(function (err, res) {
+      if (err) {
+        console.log('Document update for "%s" failed [%s]', doc._id, err.message)
+      }
+      console.log('%s "%s" available.', doc.docType ? doc.docType : 'user', doc._id)
+      next()
+    })
+}
+
 before(function (done) {
   // function: create a test user
   console.log('before ....')
-  function addUser (next) {
-    console.log('Creating user: %s\n', userDoc._id)
-    // run a compaction to remove the users, already marked as _deleted
-    request.post(opts.couchUrl + '/_users/_compact')
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .end(function (err, res) {
-        if (err) {
-          console.log('requesting compaction failed', err)
-          return done(err)
-        }
-        console.log('compaction response', res.body)
-        // create a test-user (or re-use one
-        couch
-          .db('_users')
-          .get(userDoc._id)
-          .end(function (err, res) {
-            if (err) {
-              console.log('requested for existing user - err:', err)
-            }
-            // return if user does already exist
-            if (res) {
-              console.log('requested for existing user -res:', res)
-              next()
-              return
-            }
-            // otherwise ... create the user
-            couch
-              .db('_users')
-              .insert(userDoc)
-              .end(function (err, res) {
-                if (err) {
-                  console.log('document update failed', err)
-                  return done(err)
-                }
-                next()
-              })
-          })
-      })
-  }
 
   // add testuser and test-database
-  addUser(function () {
-    removeDb(done, addDb)
+  addDocument('_users', testdata.users.user1, function () {
+    addDocument('groups', testdata.groups.group1, function () {
+      addDocument('acls', testdata.acls.aclStore1, function () {
+        removeDb(done, addDb)
+      })
+    })
   })
 })
 
 after(function (done) {
-  function removeUser (next) {
-    console.log('Remove user: %s\n', userDoc._id)
+  function removeDocument (db, docId, next) {
     couch
-      .db('_users')
-      .get(userDoc._id)
+      .db(db)
+      .get(docId)
       .end(function (err, res) {
         if (err) {
+          console.log(err)
           return done(err)
         }
         couch
-          .db('_users')
-          .remove(userDoc._id, res._rev)
+          .db(db)
+          .remove(docId, res._rev)
           .end(function (err, res) {
             if (err) {
-              console.log('removeUser failed', err)
+              console.log('Remove document "%s" failed!', docId)
               return done(err)
+            } else {
+              console.log('Removed document "%s"', docId)
+              next()
             }
-            // run a compaction to really remove the users documents
-            request.post(opts.couchUrl + '/_users/_compact')
-              .set('Content-Type', 'application/json')
-              .set('Accept', 'application/json')
-              .end(function (err, res) {
-                if (err) {
-                  console.log('compaction failed', err)
-                  return done(err)
-                }
-                next()
-              })
           })
       })
   }
@@ -186,8 +150,12 @@ after(function (done) {
   // remove testuser and test-database
 
   if (opts.finallyRemoveTestData) {
-    removeUser(function () {
-      removeDb(done)
+    removeDocument('_users', testdata.users.user1._id, function () {
+      removeDocument('groups', testdata.groups.group1._id, function () {
+        removeDocument('acls', testdata.acls.aclStore1._id, function () {
+          removeDb(done)
+        })
+      })
     })
   } else {
     done()

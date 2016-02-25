@@ -2,6 +2,7 @@
 'use strict'
 var assert = require('assert')
 var _ = require('lodash')
+var testdata = require('./testdata/userdata.js')
 var uploader
 
 describe('uploader', function () {
@@ -11,8 +12,8 @@ describe('uploader', function () {
     uploader = new Uploader()
     defaults = {
       'access_credentials': {
-        'user': 'base-api-test-user',
-        'password': '0815'
+        'user': testdata.users.user1.logins.local.login,
+        'password': testdata.users.user1.password
       },
       'source': 'test/testdata/packages/uploader-test-package1',
       'target': {
@@ -31,7 +32,6 @@ describe('uploader', function () {
 
   it('should upload \'uploader-test-package1@0.1.0-SNAPSHOT\'', function (done) {
     var options = _.merge(defaults, { 'debug': false })
-    // console.log(JSON.stringify(options, null, '\t'));
 
     function callback (err, success) {
       console.log('success', success)
@@ -41,6 +41,7 @@ describe('uploader', function () {
 
     uploader.uploadSingleWebpackage(options, function (err, success) {
       if (err) {
+        console.log('err: ', err)
         done(err)
       } else {
         var successObject = JSON.parse(success)
